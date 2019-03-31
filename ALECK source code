@@ -1,0 +1,161 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled104.ipynb",
+      "version": "0.3.2",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/PurvaChiniya/LearnIT-Girl-Project/blob/master/ALECK%20source%20code\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "metadata": {
+        "id": "2b1eKUXex2t8",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "import nltk\n",
+        "import numpy as np\n",
+        "import random\n",
+        "from sklearn.feature_extraction.text import TfidfVectorizer\n",
+        "from sklearn.metrics.pairwise import cosine_similarity\n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "sbsottBdx67a",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "f=open('language.txt','r',errors = 'ignore')#sample file of the bot\n",
+        "sentence=f.read()\n",
+        "sentence=sentence.lower()# converts to lowercase\n",
+        "nltk.download('punkt') \n",
+        "nltk.download('wordnet') \n",
+        "sent_tokens = nltk.sent_tokenize(sentence) \n",
+        "word_tokens = nltk.word_tokenize(sentence)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "MWVv5Z5lx-bt",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "import string\n",
+        "lemmer = nltk.stem.WordNetLemmatizer()\n",
+        "def tokenize(tokens):\n",
+        "    return [lemmer.lemmatize(token) for token in tokens]\n",
+        "remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)\n",
+        "def normalize(text):\n",
+        "    return tokenize(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))\n",
+        "INPUTS = (\"hello\", \"hi\", \"greetings\", \"sup\", \"what's up\",\"hey\",)\n",
+        "RESPONSES = [\"hi\", \"hey\", \"*nods*\", \"hi there\", \"hello\", \"I am glad! You are talking to me\"]\n",
+        "def greeting(sentence):\n",
+        "     for word in sentence.split():\n",
+        "        if word.lower() in INPUTS:\n",
+        "            return random.choice(RESPONSES)  "
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "HKN9_-htyCri",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "def response(user_response):\n",
+        "    bot_response=''\n",
+        "    sent_tokens.append(user_response)\n",
+        "    TfidfVec = TfidfVectorizer(tokenizer=normalize, stop_words='english')\n",
+        "    tfidf = TfidfVec.fit_transform(sent_tokens)\n",
+        "    vals = cosine_similarity(tfidf[-1], tfidf)\n",
+        "    idx=vals.argsort()[0][-2]\n",
+        "    flat = vals.flatten()\n",
+        "    flat.sort()\n",
+        "    req_tfidf = flat[-2]\n",
+        "    if(req_tfidf==0):\n",
+        "        bot_response=robo_response+\"I am sorry! I don't understand you\"\n",
+        "        return bot_response\n",
+        "    else:\n",
+        "        bot_response = bot_response+sent_tokens[idx]\n",
+        "        return bot_response"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "3VcFCjxjyXMq",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "flag=True\n",
+        "print(\"ALECK: My name is Aleck. I will translate your language to the chosen language. If you want to exit, type Bye!\")\n",
+        "while(flag==True):\n",
+        "    user_response = input()\n",
+        "    user_response=user_response.lower()\n",
+        "    if(user_response!='bye'):\n",
+        "        if(user_response=='thanks' or user_response=='thank you' ):\n",
+        "            flag=False\n",
+        "            print(\"ALECK: You are welcome..\")\n",
+        "        else:\n",
+        "            if(greeting(user_response)!=None):\n",
+        "                print(\"ALECK: \"+greeting(user_response))\n",
+        "            else:\n",
+        "                print(\"ALECK: \",end=\"\")\n",
+        "                print(response(user_response))\n",
+        "                sent_tokens.remove(user_response)\n",
+        "    else:\n",
+        "        flag=False\n",
+        "        print(\"ALECK: Bye! take care..\")"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "QtWAL3pNyaf6",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
